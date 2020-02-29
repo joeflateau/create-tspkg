@@ -52,7 +52,7 @@ if (require.main === module) {
       }
     ]);
     init({
-      templateDir: process.cwd() + "/template",
+      templateDir: __dirname + "/../template",
       destDir: process.cwd(),
       packageJson
     });
