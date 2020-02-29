@@ -14,10 +14,11 @@ describe("init", () => {
     await init({
       templateDir: process.cwd() + "/template",
       destDir: resultDir,
-      packageJson: {
+      options: {
         name: "test-package",
         author: "John Smith",
-        license: "ISC"
+        license: "ISC",
+        createGithubRepo: false
       }
     });
 

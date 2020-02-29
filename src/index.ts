@@ -1,27 +1,33 @@
 #!/usr/bin/env node
 
 import { copyFromTemplateFiles } from "var-sub";
-import { move } from "fs-extra";
+import { move, createFile } from "fs-extra";
 import { exec as execCb } from "child_process";
 import { promisify } from "util";
 import { prompt } from "inquirer";
+import { parse as parsePath } from "path";
 
 const exec = promisify(execCb);
 
 export async function init({
   templateDir,
   destDir,
-  packageJson
+  options
 }: {
   templateDir: string;
   destDir: string;
-  packageJson: { name: string; author: string; license: string };
+  options: {
+    name: string;
+    author: string;
+    license: string;
+    createGithubRepo: boolean;
+  };
 }) {
   const {
     name: PACKAGE_NAME,
     author: PACKAGE_AUTHOR,
     license: PACKAGE_LICENSE
-  } = packageJson;
+  } = options;
 
   await copyFromTemplateFiles(templateDir, "./**/*", destDir, {
     PACKAGE_NAME,
@@ -36,32 +42,44 @@ export async function init({
   }
 
   await exec("npm i", { cwd: destDir });
+
+  if (options.createGithubRepo) {
+    await exec(`hub create ${PACKAGE_NAME}`, { cwd: destDir });
+  }
 }
 
 if (require.main === module) {
   (async function() {
-    const packageJson = await prompt([
+    const options = await prompt([
       {
         type: "input",
         name: "name",
-        message: "Package name"
+        message: "Package name:",
+        default: parsePath(process.cwd()).base
       },
       {
         type: "input",
         name: "author",
-        message: "Package author"
+        message: "Package author name:",
+        default: process.env.USER
       },
       {
         type: "input",
         name: "license",
-        message: "Package license",
+        message: "Package license:",
         default: "ISC"
+      },
+      {
+        type: "confirm",
+        name: "createGithubRepo",
+        default: false,
+        message: "Create a GitHub repo for this?"
       }
     ]);
     init({
       templateDir: __dirname + "/../template",
       destDir: process.cwd(),
-      packageJson
+      options
     });
   })();
 }
