@@ -43,6 +43,8 @@ export async function init({
 
   await exec("npm i", { cwd: destDir });
 
+  await exec("git init", { cwd: destDir });
+
   if (options.createGithubRepo) {
     await exec(`hub create ${PACKAGE_NAME}`, { cwd: destDir });
   }
