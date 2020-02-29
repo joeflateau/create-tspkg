@@ -8,7 +8,7 @@ const exec = promisify(execCb);
 
 describe("init", () => {
   it("should expand template, install deps, and run tests for new package", async function() {
-    this.timeout("15s");
+    this.timeout("30s");
     const resultDir = directory();
     console.log("test dir: " + resultDir);
     await init({
