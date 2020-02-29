@@ -10,9 +10,13 @@ describe("init", () => {
   it("should expand template, install deps, and run tests for new package", async function() {
     this.timeout("15s");
     await init({
-      srcDir: process.cwd() + "/test",
       templateDir: process.cwd() + "/template",
-      destDir: process.cwd() + "/test-results"
+      destDir: process.cwd() + "/test-results",
+      packageJson: {
+        name: "test-package",
+        author: "John Smith",
+        license: "ISC"
+      }
     });
     await exec("npm run test", { cwd: process.cwd() + "/test-results" });
   });

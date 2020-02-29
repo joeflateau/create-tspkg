@@ -1,28 +1,26 @@
 #!/usr/bin/env node
 
-import { readFile } from "fs-extra";
 import { copyFromTemplateFiles } from "var-sub";
 import { exec as execCb } from "child_process";
 import { promisify } from "util";
+import { prompt } from "inquirer";
 
 const exec = promisify(execCb);
 
 export async function init({
-  srcDir,
   templateDir,
-  destDir
+  destDir,
+  packageJson
 }: {
-  srcDir: string;
   templateDir: string;
   destDir: string;
+  packageJson: { name: string; author: string; license: string };
 }) {
-  const packageJsonString = await readFile(srcDir + "/package.json", "utf8");
-  const packageObj = JSON.parse(packageJsonString);
   const {
     name: PACKAGE_NAME,
     author: PACKAGE_AUTHOR,
     license: PACKAGE_LICENSE
-  } = packageObj;
+  } = packageJson;
 
   await copyFromTemplateFiles(templateDir, "./**/*", destDir, {
     PACKAGE_NAME,
@@ -34,9 +32,29 @@ export async function init({
 }
 
 if (require.main === module) {
-  init({
-    srcDir: process.cwd(),
-    templateDir: process.cwd() + "/template",
-    destDir: process.cwd()
-  });
+  (async function() {
+    const packageJson = await prompt([
+      {
+        type: "input",
+        name: "name",
+        message: "Package name"
+      },
+      {
+        type: "input",
+        name: "author",
+        message: "Package author"
+      },
+      {
+        type: "input",
+        name: "license",
+        message: "Package license",
+        default: "ISC"
+      }
+    ]);
+    init({
+      templateDir: process.cwd() + "/template",
+      destDir: process.cwd(),
+      packageJson
+    });
+  })();
 }
