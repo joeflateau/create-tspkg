@@ -29,12 +29,13 @@ export async function init({
     PACKAGE_LICENSE
   });
 
-  await exec("npm i", { cwd: destDir });
   for (const tempName of [".gitignore", "package.json"]) {
     await move(destDir + `/--${tempName}`, destDir + `/${tempName}`, {
       overwrite: true
     });
   }
+
+  await exec("npm i", { cwd: destDir });
 }
 
 if (require.main === module) {
