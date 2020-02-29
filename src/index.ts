@@ -30,8 +30,10 @@ export async function init({
   });
 
   await exec("npm i", { cwd: destDir });
-  for (const tempName in [".gitignore", "package.json"]) {
-    await move(destDir + `/--${tempName}`, destDir + `/${tempName}`);
+  for (const tempName of [".gitignore", "package.json"]) {
+    await move(destDir + `/--${tempName}`, destDir + `/${tempName}`, {
+      overwrite: true
+    });
   }
 }
 
