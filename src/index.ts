@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { readFile } from "fs-extra";
 import { copyFromTemplateFiles } from "var-sub";
 import { exec as execCb } from "child_process";
