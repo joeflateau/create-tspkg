@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { copyFromTemplateFiles } from "var-sub";
+import { move } from "fs-extra";
 import { exec as execCb } from "child_process";
 import { promisify } from "util";
 import { prompt } from "inquirer";
@@ -29,6 +30,9 @@ export async function init({
   });
 
   await exec("npm i", { cwd: destDir });
+  for (const tempName in [".gitignore", "package.json"]) {
+    await move(destDir + `/--${tempName}`, destDir + `/${tempName}`);
+  }
 }
 
 if (require.main === module) {
