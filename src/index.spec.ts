@@ -7,7 +7,7 @@ import { promisify } from "util";
 const exec = promisify(execCb);
 
 describe("init", () => {
-  it("should expand template, install deps, and run tests for new package", async function() {
+  it("should initialize a new package", async function() {
     this.timeout("30s");
     const resultDir = directory();
     console.log("test dir: " + resultDir);
@@ -15,11 +15,32 @@ describe("init", () => {
       templateDir: process.cwd() + "/template",
       destDir: resultDir,
       options: {
-        name: "test-package",
+        packageName: "test-package",
         description: "Test package is a test package",
         author: "John Smith",
         license: "ISC",
-        createGithubRepo: false
+        createGithubRepo: false,
+        makeCli: false
+      }
+    });
+
+    await exec("npm run test", { cwd: resultDir });
+  });
+
+  it("should initialize a new cli package", async function() {
+    this.timeout("30s");
+    const resultDir = directory();
+    console.log("test dir: " + resultDir);
+    await init({
+      templateDir: process.cwd() + "/template",
+      destDir: resultDir,
+      options: {
+        packageName: "test-package",
+        description: "Test package is a test package",
+        author: "John Smith",
+        license: "ISC",
+        createGithubRepo: false,
+        makeCli: true
       }
     });
 
