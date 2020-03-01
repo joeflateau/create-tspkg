@@ -16,6 +16,7 @@ describe("init", () => {
       destDir: resultDir,
       options: {
         name: "test-package",
+        description: "Test package is a test package",
         author: "John Smith",
         license: "ISC",
         createGithubRepo: false

@@ -18,25 +18,23 @@ export async function init({
   destDir: string;
   options: {
     name: string;
+    description: string;
     author: string;
     license: string;
     createGithubRepo: boolean;
   };
 }) {
-  const {
-    name: PACKAGE_NAME,
-    author: PACKAGE_AUTHOR,
-    license: PACKAGE_LICENSE
-  } = options;
+  const { name, description, author, license } = options;
 
   await copyFromTemplateFiles(
     templateDir,
     "./**/*",
     destDir,
     {
-      PACKAGE_NAME,
-      PACKAGE_AUTHOR,
-      PACKAGE_LICENSE
+      PACKAGE_NAME: name,
+      PACKAGE_AUTHOR: author,
+      PACKAGE_LICENSE: license,
+      PACKAGE_DESCRIPTION: description
     },
     { modifyDestRelativePath: path => path.split("--").join("") }
   );
@@ -46,7 +44,7 @@ export async function init({
   await exec("git init", { cwd: destDir });
 
   if (options.createGithubRepo) {
-    await exec(`hub create ${PACKAGE_NAME}`, { cwd: destDir });
+    await exec(`hub create '${name}'`, { cwd: destDir });
   }
 }
 
@@ -58,6 +56,11 @@ if (require.main === module) {
         name: "name",
         message: "Package name:",
         default: parsePath(process.cwd()).base
+      },
+      {
+        type: "input",
+        name: "description",
+        message: "Package description:"
       },
       {
         type: "input",

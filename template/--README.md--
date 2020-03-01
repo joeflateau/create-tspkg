@@ -1,14 +1,10 @@
-# TSPx
+# $PACKAGE_NAME
 
-## Usage
+$PACKAGE_DESCRIPTION
 
-`npx create-tspx` or `npm init tspx`
-
-After a few brief prompts you will be ready to publish your Typescript package to npm.
+This project was bootstrapped with [TSPx](https://github.com/joeflateau/tspx).
 
 ## Next steps
-
-After the project is bootstrapped, you can use these commands.
 
 ### `npm run test`
 
