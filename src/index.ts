@@ -29,17 +29,17 @@ export async function init({
     license: PACKAGE_LICENSE
   } = options;
 
-  await copyFromTemplateFiles(templateDir, "./**/*", destDir, {
-    PACKAGE_NAME,
-    PACKAGE_AUTHOR,
-    PACKAGE_LICENSE
-  });
-
-  for (const tempName of [".gitignore", "package.json"]) {
-    await move(destDir + `/--${tempName}`, destDir + `/${tempName}`, {
-      overwrite: true
-    });
-  }
+  await copyFromTemplateFiles(
+    templateDir,
+    "./**/*",
+    destDir,
+    {
+      PACKAGE_NAME,
+      PACKAGE_AUTHOR,
+      PACKAGE_LICENSE
+    },
+    { modifyDestRelativePath: path => path.split("--").join("") }
+  );
 
   await exec("npm i", { cwd: destDir });
 
