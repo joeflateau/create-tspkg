@@ -25,6 +25,8 @@ describe("init", () => {
       }
     });
 
+    await exec("npm run lint", { cwd: resultDir });
+
     await exec("npm run test", { cwd: resultDir });
   });
 
