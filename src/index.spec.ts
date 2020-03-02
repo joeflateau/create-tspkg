@@ -45,6 +45,8 @@ describe("init", () => {
       }
     });
 
+    await exec("npm run lint", { cwd: resultDir });
+
     await exec("npm run test", { cwd: resultDir });
 
     const { stdout: result } = await exec("node ./dist/index.js", {

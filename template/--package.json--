@@ -7,7 +7,8 @@
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
     "build": "tsc",
     "prepare": "tsc",
-    "prepublishOnly": "npm run test"
+    "prepublishOnly": "npm run test",
+    "lint": "eslint ./src/**/*.ts"
   },
   "files": ["dist"],
   "keywords": [],
@@ -20,6 +21,9 @@
     "@types/chai": "^4.2.9",
     "@types/node": "^13.7.7",
     "@types/mocha": "^7.0.1",
+    "eslint": "^6.8.0",
+    "@typescript-eslint/eslint-plugin": "^2.22.0",
+    "@typescript-eslint/parser": "^2.22.0",
     "chai": "^4.2.0",
     "mocha": "^7.1.0",
     "ts-node": "^8.6.2",

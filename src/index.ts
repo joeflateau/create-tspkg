@@ -53,11 +53,12 @@ export async function init({
                 contents,
                 `if (require.main === module) { console.log(helloWorld()); }`
               ].join("\n\n"),
-            "./package.json": editJson(packageJsonContents => {
-              packageJsonContents["bin"] = {
+            "./package.json": editJson(packageJsonContents => ({
+              ...packageJsonContents,
+              bin: {
                 [packageName]: "./dist/index.js"
-              };
-            })
+              }
+            }))
           });
         }
 
@@ -117,12 +118,15 @@ if (require.main === module) {
         message: "Create a GitHub repo for this?"
       }
     ]);
-    init({
+    await init({
       templateDir: __dirname + "/../template",
       destDir: process.cwd(),
       options
     });
-  })();
+  })().catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
 }
 
 function mapMatch(
@@ -139,7 +143,7 @@ function mapMatch(
 function editJson(editorFn: (obj: any) => void) {
   return function(value: string) {
     const obj = JSON.parse(value);
-    editorFn(obj);
-    return JSON.stringify(obj, null, 2);
+    const newObj = editorFn(obj);
+    return JSON.stringify(newObj, null, 2);
   };
 }
