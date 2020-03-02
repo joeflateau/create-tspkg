@@ -1,4 +1,5 @@
 import { describe, it } from "mocha";
+import { expect } from "chai";
 import { init } from ".";
 import { directory } from "tempy";
 import { exec as execCb } from "child_process";
@@ -45,5 +46,10 @@ describe("init", () => {
     });
 
     await exec("npm run test", { cwd: resultDir });
+
+    const { stdout: result } = await exec("node ./dist/index.js", {
+      cwd: resultDir
+    });
+    expect(result).to.equal("hello world\n");
   });
 });

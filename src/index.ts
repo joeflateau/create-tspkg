@@ -25,7 +25,14 @@ export async function init({
     makeCli: boolean;
   };
 }) {
-  const { packageName, description, author, license, makeCli } = options;
+  const {
+    packageName,
+    description,
+    author,
+    license,
+    makeCli,
+    createGithubRepo
+  } = options;
 
   await copyFromTemplateFiles(
     templateDir,
@@ -37,31 +44,41 @@ export async function init({
       PACKAGE_LICENSE: license,
       PACKAGE_DESCRIPTION: description
     },
-    { modifyDestRelativePath: path => path.split("--").join("") }
-  );
+    {
+      mapper: ({ path, contents }) => {
+        path = path.split("--").join("");
 
-  if (options.makeCli) {
-    const shebang = `#!/usr/bin/env node`;
-    const indexContents = await readFile(destDir + "/src/index.ts", "utf8");
-    const execIfMainModule = `if (require.main === module) { console.log(helloWorld()); }`;
-    const newIndexContents = [shebang, indexContents, execIfMainModule].join(
-      "\n\n"
-    );
-    await writeFile(destDir + "/src/index.ts", newIndexContents, "utf8");
-    const packageJsonContents = await readJSON(destDir + "/package.json");
-    packageJsonContents["bin"] = {
-      [packageName]: "./dist/index.js"
-    };
-    await writeJSON(destDir + "/package.json", packageJsonContents, {
-      spaces: 2
-    });
-  }
+        if (makeCli) {
+          contents = modifyIfMatch(path, contents, {
+            "./src/index.ts": contents =>
+              [
+                `#!/usr/bin/env node`,
+                contents,
+                `if (require.main === module) { console.log(helloWorld()); }`
+              ].join("\n\n"),
+            "./package.json": contents => {
+              const packageJsonContents = JSON.parse(contents);
+              packageJsonContents["bin"] = {
+                [packageName]: "./dist/index.js"
+              };
+              return JSON.stringify(packageJsonContents, null, 2);
+            }
+          });
+        }
+
+        return {
+          path,
+          contents
+        };
+      }
+    }
+  );
 
   await exec("npm i", { cwd: destDir });
 
   await exec("git init", { cwd: destDir });
 
-  if (options.createGithubRepo) {
+  if (createGithubRepo) {
     await exec(`hub create '${packageName}'`, { cwd: destDir });
   }
 }
@@ -111,4 +128,14 @@ if (require.main === module) {
       options
     });
   })();
+}
+function modifyIfMatch(
+  path: string,
+  contents: string,
+  modify: Record<string, (contents: string) => string>
+) {
+  if (path in modify) {
+    contents = modify[path](contents);
+  }
+  return contents;
 }
