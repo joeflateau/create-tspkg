@@ -5,14 +5,20 @@ import { exec as execCb } from "child_process";
 import { promisify } from "util";
 import { prompt } from "inquirer";
 import { parse as parsePath } from "path";
-import { readFile, writeFile, readJSON, writeJSON } from "fs-extra";
 
 const exec = promisify(execCb);
 
 export async function init({
   templateDir,
   destDir,
-  options
+  options: {
+    packageName,
+    description,
+    author,
+    license,
+    makeCli,
+    createGithubRepo
+  }
 }: {
   templateDir: string;
   destDir: string;
@@ -25,15 +31,6 @@ export async function init({
     makeCli: boolean;
   };
 }) {
-  const {
-    packageName,
-    description,
-    author,
-    license,
-    makeCli,
-    createGithubRepo
-  } = options;
-
   await copyFromTemplateFiles(
     templateDir,
     "./**/*",
@@ -49,20 +46,18 @@ export async function init({
         path = path.split("--").join("");
 
         if (makeCli) {
-          contents = modifyIfMatch(path, contents, {
+          contents = mapMatch(path, contents, {
             "./src/index.ts": contents =>
               [
                 `#!/usr/bin/env node`,
                 contents,
                 `if (require.main === module) { console.log(helloWorld()); }`
               ].join("\n\n"),
-            "./package.json": contents => {
-              const packageJsonContents = JSON.parse(contents);
+            "./package.json": editJson(packageJsonContents => {
               packageJsonContents["bin"] = {
                 [packageName]: "./dist/index.js"
               };
-              return JSON.stringify(packageJsonContents, null, 2);
-            }
+            })
           });
         }
 
@@ -129,7 +124,8 @@ if (require.main === module) {
     });
   })();
 }
-function modifyIfMatch(
+
+function mapMatch(
   path: string,
   contents: string,
   modify: Record<string, (contents: string) => string>
@@ -138,4 +134,12 @@ function modifyIfMatch(
     contents = modify[path](contents);
   }
   return contents;
+}
+
+function editJson(editorFn: (obj: any) => void) {
+  return function(value: string) {
+    const obj = JSON.parse(value);
+    editorFn(obj);
+    return JSON.stringify(obj, null, 2);
+  };
 }
